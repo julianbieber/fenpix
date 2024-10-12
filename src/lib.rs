@@ -106,7 +106,7 @@ pub fn fen_to_board_buffer(
     let img = generate_board_image(fen, upscale_multiplier, &chess_assets)?;
 
     let mut buffer = Cursor::new(Vec::new());
-    img.write_to(&mut buffer, image::ImageOutputFormat::Png)
+    img.write_to(&mut buffer, image::ImageFormat::Png)
         .map_err(FenToImgError::from)?;
 
     Ok(buffer.into_inner())
