@@ -12,14 +12,14 @@ fn generate_board_image(
     fen: &str,
     upscale_multiplier: u32,
     chess_assets: &ChessAssets,
+    border_size: u32,
 ) -> Result<DynamicImage, FenToImgError> {
     let fen_parts: Vec<&str> = fen.split_whitespace().collect();
     let board = fen.split_whitespace().next().ok_or("FEN string is empty")?;
     let mut img = chess_assets.board_image.clone();
-    let square_size = (img.width() - 2 * 7) / 8; // Subtract border size from width before dividing by 8
-    let piece_size = 16;
+    let square_size = (img.width() - 2 * border_size) / 8; // Subtract border size from width before dividing by 8
+    let piece_size = chess_assets.piece_images.values().next().unwrap().width();
     let offset = (square_size - piece_size) / 2;
-    let border_size = 9;
     let mut x = 0;
     let mut y = 0;
     for char in board.chars() {
@@ -82,8 +82,9 @@ pub fn fen_to_board_img(
     save_dir: &str,
     upscale_multiplier: u32,
     chess_assets: &ChessAssets,
+    border_size: u32,
 ) -> Result<(), FenToImgError> {
-    let img = generate_board_image(fen, upscale_multiplier, &chess_assets)?;
+    let img = generate_board_image(fen, upscale_multiplier, &chess_assets, border_size)?;
     img.save(save_dir).map_err(FenToImgError::from)
 }
 
@@ -102,8 +103,9 @@ pub fn fen_to_board_buffer(
     fen: &str,
     upscale_multiplier: u32,
     chess_assets: &ChessAssets,
+    border_size: u32,
 ) -> Result<Vec<u8>, FenToImgError> {
-    let img = generate_board_image(fen, upscale_multiplier, &chess_assets)?;
+    let img = generate_board_image(fen, upscale_multiplier, &chess_assets, border_size)?;
 
     let mut buffer = Cursor::new(Vec::new());
     img.write_to(&mut buffer, image::ImageFormat::Png)
@@ -123,6 +125,7 @@ mod tests {
             "chess_board.png",
             3,
             &ChessAssets::default(),
+            9,
         );
         result.unwrap();
     }
